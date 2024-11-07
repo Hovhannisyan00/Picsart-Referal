@@ -28,7 +28,7 @@
     "@bugsnag/source-maps": "^2.3.3",
     "@commitlint/cli": "^18.6.0",
     "@commitlint/config-conventional": "^18.6.0",
-    "@commitlint/cz-commitlin t": "^18.6.0",
+    "@commitlint/cz-commitlint": "^18.6.0",
     "@picsart/conventional-changelog": "^1.0.4",
     "@picsart/eslint-config": "^1.0.11",
     "@picsart/miniapp-sdk-types": "^3.0.11",
