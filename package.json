@@ -57,5 +57,8 @@
     "commitizen": {
       "path": "@commitlint/cz-commitlint"
     }
+  },
+  "dependencies": {
+    "react-toastify": "^10.0.6"
   }
 }
