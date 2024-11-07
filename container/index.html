@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en" class="dark" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Picsart Miniapps</title>
+    <script type="text/javascript">
+      const query = window.location.search;
+      const params = new URLSearchParams(query);
+      const currentTheme = params.get('theme');
+      if (currentTheme) {
+        const html = document.querySelector('html');
+        ['dark', 'light'].forEach(classname => {
+          html.classList.remove(classname);
+        });
+        html.classList.add(currentTheme);
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="modal-root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

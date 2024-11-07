@@ -1,0 +1,61 @@
+{
+  "name": "piscart-miniapps",
+  "version": "1.0.0",
+  "description": "Picsart Miniapps Project",
+  "main": "index.js",
+  "scripts": {
+    "start": "zx start.mjs",
+    "commit": "git cz --hook",
+    "build": "npm run build -w miniapp",
+    "build:local": "npm run build:local -w miniapp",
+    "build:production": "npm run build:production -w miniapp",
+    "build:production:zip": "echo \"\u001b[31mWarning: Manual deployment is not recommended. Please set up CI/CD for reliable, automated deployments.\u001b[0m\" && npm run build:production:zip -w miniapp",
+    "build:preproduction": "npm run build:stage -w miniapp",
+    "build:stage": "npm run build:stage -w miniapp",
+    "build:ci": "npm run build:ci -w miniapp",
+    "bundle": "mkdir dist && cp package.json dist",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postversion": "cp -r package.json ..",
+    "prepare": "is-ci || husky install || true"
+  },
+  "workspaces": [
+    "container",
+    "miniapp"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@bugsnag/source-maps": "^2.3.3",
+    "@commitlint/cli": "^18.6.0",
+    "@commitlint/config-conventional": "^18.6.0",
+    "@commitlint/cz-commitlin t": "^18.6.0",
+    "@picsart/conventional-changelog": "^1.0.4",
+    "@picsart/eslint-config": "^1.0.11",
+    "@picsart/miniapp-sdk-types": "^3.0.11",
+    "@picsart/miniapps-sdk": "^6.1.24",
+    "@typescript-eslint/eslint-plugin": "^5.9.1",
+    "@typescript-eslint/parser": "^5.9.1",
+    "commitizen": "^4.3.0",
+    "compare-versions": "^6.1.0",
+    "danger": "^11.3.1",
+    "eslint": "^8.6.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "form-data": "^4.0.0",
+    "husky": "^9.0.11",
+    "is-ci": "^3.0.1",
+    "lint-staged": "^15.2.2",
+    "micromatch": "^4.0.5",
+    "rimraf": "^5.0.7",
+    "typescript": "~5.1.0",
+    "zx": "^7.2.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "config": {
+    "commitizen": {
+      "path": "@commitlint/cz-commitlint"
+    }
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "name": "Picsart Miniapp",
+  "id": "miniapp-id",
+  "productBundle": "com.picsart.studio",
+  "description": "",
+  "platformVersion": "v8",
+  "viewModeInWeb": "navigation",
+  "iconUrl": "https://w7.pngwing.com/pngs/267/146/png-transparent-jedi-logo-logos-order-logos-and-brands-icon-thumbnail.png",
+  "version": "1",
+  "development": {
+    "port": 3008,
+    "host": "http://localhost"
+  },
+  "tags": [],
+  "changeLog": "get from git history...",
+  "extensions": [
+    {
+      "type": "Content",
+      "codeUrl": "https://dcdn.picsart.com/dev/replace-at-build-time.zip",
+      "htmlRenderingEnabled": true,
+      "params": [
+        {
+          "name": "inputFormats",
+          "type": "object",
+          "value": [
+            "text"
+          ]
+        },
+        {
+          "name": "outputFormats",
+          "type": "object",
+          "value": [
+            "photo"
+          ]
+        },
+        {
+          "name": "deepLink",
+          "type": "object",
+          "value": [
+            ""
+          ]
+        },
+        {
+          "name": "webViewMode",
+          "type": "string",
+          "value": "Navigation"
+        }
+      ]
+    }
+  ],
+  "experience": "Edit",
+  "layout": "{\"type\": \"standard\"}",
+  "ownerIds": []
+}

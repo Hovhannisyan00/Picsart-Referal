@@ -1,0 +1,85 @@
+stages:
+  - Checks
+  - Build
+  - Deploy
+  - libraries-update
+
+include:
+  - remote: "https://ci-cd.picsart.tools/web-templates/common/gitlab-bot.gitlab-ci.yml"
+
+  - remote: 'https://ci-cd.picsart.tools/web-templates/common/libraries-update.gitlab-ci.yml'
+  - remote: 'https://ci-cd.picsart.tools/web-templates/common/libraries-update-topics.gitlab-ci.yml'
+  
+  - remote: "https://ci-cd.picsart.tools/web-templates/miniapp-templates/common/default.gitlab-ci.yml"
+  - remote: "https://ci-cd.picsart.tools/web-templates/miniapp-templates/common/publish.gitlab-ci.yml"
+  - remote: "https://ci-cd.picsart.tools/web-templates/miniapp-templates/common/build.gitlab-ci.yml"
+  - remote: "https://ci-cd.picsart.tools/web-templates/miniapp-templates/common/checks.gitlab-ci.yml"
+  - remote: "https://ci-cd.picsart.tools/web-templates/miniapp-templates/common/deploy.gitlab-ci.yml"
+
+variables:
+  NODE_VERSION: 20
+  MINIAPP_ID_STAGE: '' # Add your miniapp stage id
+  MINIAPP_ID_PROD: '' # Add your miniapp production id
+  # path to your actual miniapp, typically "miniapp", if you have a separate directory for it
+  MINIAPP_DIR: 'miniapp'
+  ROOT_DIR_PATH: $MINIAPP_DIR
+
+workflow:
+  rules:
+    - if: ($CI_MERGE_REQUEST_IID || $CI_PIPELINE_SOURCE == 'web') && ($CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != $DEVELOP_BRANCH_NAME && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != $RELEASE_CANDIDATE_BRANCH_NAME && $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME != $DEPLOYMENT_BRANCH_NAME)
+    - if: $CI_COMMIT_BRANCH == $DEVELOP_BRANCH_NAME || $CI_COMMIT_BRANCH == $RELEASE_CANDIDATE_BRANCH_NAME || $CI_COMMIT_BRANCH == $DEPLOYMENT_BRANCH_NAME
+
+.common-rules: &common-rules
+  # production rule
+  - if: $CI_COMMIT_TAG == null && $CI_COMMIT_REF_NAME == $DEPLOYMENT_BRANCH_NAME && $MINIAPP_ID_PROD
+    variables:
+      ENV_NAME: 'production'
+      BUILD_ENV: 'production'
+      MINIAPP_ID: $MINIAPP_ID_PROD
+      UPLOAD_API_BASE: https://upload.picsart.com/files
+      JEDI_API_BASE: https://api.picsart.com/mini-apps-portal/v1/apps
+  # pre-production rule
+  - if: $CI_COMMIT_TAG == null && $CI_COMMIT_REF_NAME == $RELEASE_CANDIDATE_BRANCH_NAME && $MINIAPP_ID_STAGE
+    variables:
+      ENV_NAME: 'preproduction'
+      BUILD_ENV: 'preproduction'
+      MINIAPP_ID: $MINIAPP_ID_STAGE
+      UPLOAD_API_BASE: https://upload-stage.picsartstage2.com/files
+      JEDI_API_BASE: https://api.picsart.com/stage/mini-apps-portal/v1/apps
+  # develop branch rule
+  - if: $CI_COMMIT_TAG == null && $CI_COMMIT_REF_NAME == $DEVELOP_BRANCH_NAME && $MINIAPP_ID_STAGE
+    variables:
+      ENV_NAME: 'stage'
+      BUILD_ENV: 'stage'
+      MINIAPP_ID: $MINIAPP_ID_STAGE
+      UPLOAD_API_BASE: https://upload-stage.picsartstage2.com/files
+      JEDI_API_BASE: https://api.picsart.com/stage/mini-apps-portal/v1/apps
+  # per-branch (feature branches) rule
+  - if: $CI_PIPELINE_SOURCE != "pipeline" && $CI_PIPELINE_SOURCE != "trigger" && $MINIAPP_ID_STAGE && ($CI_MERGE_REQUEST_EVENT_TYPE == "merged_result" || $CI_MERGE_REQUEST_EVENT_TYPE == "detached")
+    variables:
+      ENV_NAME: 'stage'
+      BUILD_ENV: 'stage'
+      MINIAPP_ID: $MINIAPP_ID_STAGE
+      UPLOAD_API_BASE: https://upload-stage.picsartstage2.com/files
+      JEDI_API_BASE: https://api.picsart.com/stage/mini-apps-portal/v1/apps
+
+
+# build rules
+.build-rules:
+  rules:
+    *common-rules
+
+# publish rules
+.publish-rules:
+  rules:
+    *common-rules
+
+# deploy rules
+.deploy-rules:
+  rules:
+    *common-rules
+
+# checks rules
+.checks-rules:
+  rules:
+    *common-rules
