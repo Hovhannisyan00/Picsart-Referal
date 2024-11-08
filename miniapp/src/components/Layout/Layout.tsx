@@ -1,9 +1,11 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable import/order */
-/* eslint-disable no-alert */
 /* eslint-disable import/no-extraneous-dependencies */
+/* eslint-disable prettier/prettier */
 /* eslint-disable jsx-a11y/label-has-associated-control */
+/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable no-alert */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import { useEffect, useState } from 'react';
 import { EditorBlank, EditorBlankBody, EditorBlankFooter, EditorBlankHeader } from '@picsart/ds-components/EditorBlank';
 import { IGeneralInformation } from '@picsart/miniapps-sdk/types';
 import { Button, ButtonSizeMD } from '@picsart/ds-components/Button';
@@ -12,21 +14,60 @@ import { IconArrowLeftLarge } from '@picsart/ds-foundation/Icons/IconArrowLeftLa
 import { IconCrossLarge } from '@picsart/ds-foundation/Icons/IconCrossLarge';
 import { BadgeTypes } from '@picsart/ds-components/Badge';
 import { getContext } from '@picsart/miniapps-sdk';
+import ColorGrid from 'components/cube-days/index';
 import { Text, TextElementTypes } from '@picsart/ds-components/Text';
-import { useEffect, useState } from 'react';
+import axios from 'axios';
 import { LayoutType } from './types';
 import useStyles from './styles';
-import ColorGrid from 'components/cube-days';
+
+interface PostData {
+  message?: {
+    userID: number;
+    referralCount: number;
+    _id: string;
+    __v: number;
+  };
+  error?: string;
+}
 
 const constext = getContext().general;
 
 function Layout({ title }: LayoutType) {
   const [isUserSingin, setisUserSingin] = useState<boolean | undefined>(undefined);
+  const [UserID, setUserID] = useState<number | undefined>(undefined);
+  // const [postData, setPostData] = useState<PostData | { error: any } | null>(null);
+  const userID = UserID ?? 0;
+  const [postData, setPostData] = useState<PostData | null>(null);
+  const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const general: IGeneralInformation = constext;
+    setUserID(general.auth.getState().id);
     setisUserSingin(general.auth.getState().isAuthorized);
-  }, []);
+    axios
+      .post(
+        'http://localhost:3333/users',
+        {
+          userID: 20,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json', // Set the Content-Type to application/json
+          },
+        },
+      )
+      .then(response => {
+        console.log(response); // Log the response
+        setUserData(response.data.message); // Save the user data to state
+        setLoading(false); // Set loading to false after receiving the data
+      })
+      .catch(msg => {
+        setError(msg); // Handle any error that occurs
+        setLoading(false); // Set loading to false after an error
+      });
+  }, [UserID]);
 
   const t = useTranslator();
   const styles = useStyles({ isHacker: true });
@@ -35,21 +76,14 @@ function Layout({ title }: LayoutType) {
   const [isHovere, setIsHovere] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard
-      .writeText(link)
-      .then(() => {
-        alert('Email sent successfully!');
-        // alert('Text copied to clipboard!');
-      })
-      .catch(() => {
-        // console.error('Failed to copy text: ', err);
-      });
+    navigator.clipboard.writeText(link).then(() => alert('Link copied to clipboard!'));
   };
+
   const handleSendClick = () => {
-    alert('Text sent successfully');
+    alert('Email sent successfully');
   };
+
   if (isUserSingin === false) {
-    // flex-direction: 'column',
     return (
       <div
         style={{
@@ -74,15 +108,13 @@ function Layout({ title }: LayoutType) {
       </div>
     );
   }
+
   return (
     <EditorBlank
       __isRootEntryElement
       header={
         <EditorBlankHeader
-          startAction={{
-            icon: IconArrowLeftLarge,
-            action: () => {},
-          }}
+          startAction={{ icon: IconArrowLeftLarge, action: () => {} }}
           endAction={{
             icon: IconCrossLarge,
             action: async () => {
@@ -98,12 +130,19 @@ function Layout({ title }: LayoutType) {
         <EditorBlankBody>
           <div className={styles.content}>
             <Text className={styles.code} elementType={TextElementTypes.H1}>
-              {t('Send it to your 10 friends and get reverds!!')}
+              {t('Send it to your 10 friends and get rewards!')}
             </Text>
           </div>
+          {postData && postData.message && (
+            <div>
+              <div>User ID: {postData.message.userID}</div>
+              <div>Referral Count: {postData.message.referralCount}</div>
+              {/* Render other properties as needed */}
+            </div>
+          )}
           <form className={styles.form}>
             <div className={styles.link}>
-              <label style={{ color: 'white' }}>Email</label>
+              <label>Email</label>
               <div className={styles.first}>
                 <input className={styles.input} type="email" placeholder="Enter your email" />
                 <Button
@@ -146,13 +185,7 @@ function Layout({ title }: LayoutType) {
           <ColorGrid />
         </EditorBlankBody>
       }
-      footer={
-        <EditorBlankFooter>
-          {/* <Button isFullWidth size={ButtonSizeMD}>
-            Primary Action
-          </Button> */}
-        </EditorBlankFooter>
-      }
+      footer={<EditorBlankFooter />}
     />
   );
 }
